@@ -335,10 +335,9 @@ def clear_temp(job_id: str | None, upload_file: str | None) -> None:
     """Gradio: 清理临时文件"""
     if job_id:
         shutil.rmtree(WORKSPACE_ROOT / job_id, ignore_errors=True)
+        shutil.rmtree(ARCHIVE_ROOT / f"{job_id}.zip", ignore_errors=True)
     if upload_file:
-        shutil.rmtree(
-            ARCHIVE_ROOT / f"{Path(upload_file).stem}.zip", ignore_errors=True
-        )
+        shutil.rmtree(upload_file, ignore_errors=True)
 
 
 def clean_old_items(target_dir: Path, expire: int = 86400) -> None:
