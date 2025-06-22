@@ -1,0 +1,51 @@
+services:
+  mineru-vlm:
+    image: mineru-vlm-server:latest
+    container_name: mineru-vlm
+    build:
+      context: .
+      dockerfile: ./vlm-server/Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports: # Optional
+      - "30000:30000"
+    environment:
+      - "MINERU_TOOLS_CONFIG_JSON=/data/config/mineru.json"
+    volumes:
+      - "./compose-data/models:/data/models:ro"
+      - "./compose-data/config:/data/config:ro"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:30000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    command: >
+      --host 0.0.0.0
+      --port 30000
+
+  mineru-app:
+    image: mineru-app-server:latest
+    container_name: mineru-app
+    build:
+      context: ./../
+      dockerfile: ./docker/app-server/Dockerfile
+    ports:
+      - "7860:7860"
+    environment:
+      - "VLM_SERVER_URL=http://mineru-vlm:30000"
+    volumes:
+      - "./app-files:/app/files"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      - mineru-vlm
