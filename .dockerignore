@@ -19,5 +19,6 @@ venv
 
 # Others
 /docker
+/docs
 .gitignore
 README.md

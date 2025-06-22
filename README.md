@@ -23,6 +23,10 @@
 3. 打开`./docker`目录，使用`docker compose up -d`启动镜像
 4. 等待容器启动，访问`http://localhost:7860`
 
+## 展示效果
+
+![Web Page](docs/page.jpeg)
+
 ---
 
 感谢 OpenDataLab 对开源社区的贡献
