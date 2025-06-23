@@ -49,6 +49,7 @@ PROJECT_ROOT = Path(__file__).parent
 RESOURCES_PATH = PROJECT_ROOT / "resources"
 ASSETS_PATH = PROJECT_ROOT / "assets"
 HEADER_HTML_PATH = ASSETS_PATH / "header.html"
+INDEX_JS_PATH = ASSETS_PATH / "index.js"
 
 # 文件存储
 FILES_ROOT = PROJECT_ROOT / "files"
@@ -383,6 +384,7 @@ def build_gradio_app() -> gr.Blocks:
         title="MinerU: PDF 文档提取",
         analytics_enabled=False,
         css="footer{display:none !important}",
+        js=INDEX_JS_PATH.read_text(encoding="utf-8"),
     )
     with app:
         # 状态区
