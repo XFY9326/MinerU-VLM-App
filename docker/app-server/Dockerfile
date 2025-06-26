@@ -4,17 +4,27 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_CACHE_DIR=/tmp/uv-cache
 
-RUN python3 -m pip install --upgrade pip && \
-    pip install 'uv' -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir uv
 
 WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=${UV_CACHE_DIR} \
+    uv sync --no-cache && \
+    rm -rf ${UV_CACHE_DIR}
+
 COPY . .
 
-RUN python3 -m uv sync
+RUN addgroup --system appuser && \
+    adduser --system --ingroup appuser appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
 
 ENV VLM_SERVER_URL="http://mineru-vlm:30000"
 
 VOLUME [ "/app/files" ]
 
-ENTRYPOINT ["python3", "-m", "uv", "run", "--", "uvicorn", "main:api_app", "--host=0.0.0.0", "--port=7860"]
-
+ENTRYPOINT ["uv", "run", "--", "uvicorn", "main:api_app", "--host=0.0.0.0", "--port=7860"]

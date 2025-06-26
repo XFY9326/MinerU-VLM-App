@@ -313,7 +313,7 @@ def to_pdf(
     if file_path is None:
         return None, None, page_state
     src = Path(file_path).resolve()
-    job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{time.time()}_{src.name}"))
+    job_id = str(uuid.uuid4())
     dest_dir = WORKSPACE_ROOT / job_id
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest = dest_dir / f"{src.stem}_origin.pdf"
@@ -335,10 +335,35 @@ def to_pdf(
 def clear_temp(job_id: str | None, upload_file: str | None) -> None:
     """Gradio: 清理临时文件"""
     if job_id:
-        shutil.rmtree(WORKSPACE_ROOT / job_id, ignore_errors=True)
-        shutil.rmtree(ARCHIVE_ROOT / f"{job_id}.zip", ignore_errors=True)
+        workspace_path = WORKSPACE_ROOT / job_id
+        archive_path = ARCHIVE_ROOT / f"{job_id}.zip"
+
+        if workspace_path.exists():
+            try:
+                shutil.rmtree(workspace_path)
+                logger.info(f"Removed workspace directory: {workspace_path}")
+            except OSError as e:
+                logger.error(f"Error removing workspace directory {workspace_path}: {e}")
+
+        if archive_path.exists():
+            try:
+                archive_path.unlink()
+                logger.info(f"Removed archive file: {archive_path}")
+            except OSError as e:
+                logger.error(f"Error removing archive file {archive_path}: {e}")
+
     if upload_file:
-        shutil.rmtree(upload_file, ignore_errors=True)
+        upload_path = Path(upload_file)
+        if upload_path.exists():
+            try:
+                # Gradio 的临时文件可能是一个目录或文件
+                if upload_path.is_dir():
+                    shutil.rmtree(upload_path)
+                else:
+                    upload_path.unlink()
+                logger.info(f"Removed temporary upload file/directory: {upload_path}")
+            except OSError as e:
+                logger.error(f"Error removing temporary upload {upload_path}: {e}")
 
 
 def clean_old_items(target_dir: Path, expire: int = 86400) -> None:

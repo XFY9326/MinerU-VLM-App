@@ -49,7 +49,10 @@ def _patch_templates(url_prefix: str) -> None:
             flags=re.IGNORECASE | re.DOTALL,
         ),
     ]
-    cdn_regex: list[re.Pattern] = [re.compile(r"https?://cdnjs.cloudflare.com.*?")]
+    cdn_regex: list[re.Pattern] = [
+        re.compile(r"https?://cdnjs.cloudflare.com.*?"),
+        re.compile(r"https?://cdn.jsdelivr.net.*?"),
+    ]
 
     def _do_patch(html: str) -> str:
         for pattern in remove_regex:
@@ -78,7 +81,16 @@ def _patch_templates(url_prefix: str) -> None:
     routes.templates.env.filters["toorjson"] = routes.toorjson
 
 
+
+is_patched = False
+
+
 def patch(resources_path: Path, url_prefix: str) -> None:
+    global is_patched
+    if is_patched:
+        return
     _patch_env()
     _patch_font(resources_path)
     _patch_templates(url_prefix)
+    is_patched = True
+

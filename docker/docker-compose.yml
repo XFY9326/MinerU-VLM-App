@@ -33,8 +33,9 @@ services:
     image: mineru-app-server:latest
     container_name: mineru-app
     build:
-      context: ./../
+      context: ..
       dockerfile: ./docker/app-server/Dockerfile
+    restart: unless-stopped
     ports:
       - "7860:7860"
     environment:
