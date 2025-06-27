@@ -1,4 +1,4 @@
-FROM lmsysorg/sglang:latest
+FROM lmsysorg/sglang:v0.4.7-cu124
 
 RUN python3 -m pip install -U 'mineru[vlm]' -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple --break-system-packages
 
